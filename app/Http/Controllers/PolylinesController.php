@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\PolylinesModel;
 
 class PolylinesController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
      */
+    public function __construct()
+    {
+        $this->polylines = new PolylinesModel();
+    }
     public function index()
     {
         //
@@ -27,7 +33,34 @@ class PolylinesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         //Validate request
+         $request->validate(
+            [
+                'name' => 'required|unique:polylines,name',
+                'description' => 'required',
+                'geom_polylines' => 'required',
+            ],
+            [
+                'name.required' => 'Name is required',
+                'name.unique' => 'Name already exists',
+                'description.required' => 'Description is required',
+                'geom_polylines.required' => 'Geometry polylines is required',
+            ]
+            );
+
+        $data = [
+            'geom' => $request ->geom_polylines,
+            'name' => $request ->name,
+            'description' => $request ->description,
+        ];
+
+        // Create data
+       if (!$this->polylines->create($data)) {
+       return redirect()->route('map')->with('error', 'Polylines failed to add');
+       }
+
+        // Redirect to Map
+        return redirect()->route('map')->with('success', 'Polylines has been added');
     }
 
     /**
@@ -62,3 +95,4 @@ class PolylinesController extends Controller
         //
     }
 }
+

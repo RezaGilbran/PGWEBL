@@ -5,16 +5,18 @@ namespace App\Models;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
-class PolylinesModel extends Model
+class PolygonsModel extends Model
 {
-    protected $table = 'polylines';
+    protected $table = 'polygons';
 
     protected $guarded = ['id'];
 
-    public function geojson_polylines()
+    public function geojson_polygons()
     {
-        $polylines = $this
-            ->select(DB::raw('id, st_asgeojson(geom) as geom, name, description, st_length(geom, true) as length_m, st_length(geom, true)/1000 as length_km, created_at, updated_at'))
+        $polygons = $this
+            ->select(DB::raw('id, st_asgeojson(geom) as geom, name, description, st_area(geom, true) as luas_m2,
+       st_area(geom, true) / 1000000 as luas_km2,
+       st_area(geom, true) / 10000 as luas_hektar, created_at, updated_at'))
             ->get();
 
         $geojson = [
@@ -22,7 +24,7 @@ class PolylinesModel extends Model
             'features' => [],
         ];
 
-        foreach ($polylines as $p) {
+        foreach ($polygons as $p) {
             $feature = [
                 'type' => 'Feature',
                 'geometry' => json_decode($p->geom),
@@ -32,8 +34,9 @@ class PolylinesModel extends Model
                     'description' => $p->description,
                     'created_at' => $p->created_at,
                     'updated_at' => $p->updated_at,
-                    'length_m' => $p->length_m,
-                    'length_km' => $p->length_km
+                    'luas_m2' => $p->luas_m2,
+                    'luas_km2' => $p->luas_km2,
+                    'luas_hektar' => $p->luas_hektar
                 ],
             ];
 

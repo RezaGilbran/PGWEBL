@@ -2,28 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PointsModel;
 use Illuminate\Http\Request;
-
-use function PHPSTORM_META\map;
-
-class PointsController extends Controller
+use App\Models\PolygonsModel;
+class polygonsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function __construct()
     {
-        $this->points = new PointsModel();
+        $this->polygons = new PolygonsModel();
     }
-
     public function index()
     {
-        $data = [
-            'title' => 'Map',
-        ];
-
-        return view('map', $data);
+        //
     }
 
     /**
@@ -37,36 +29,36 @@ class PointsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+     public function store(Request $request)
     {
-        //Validate request
-        $request->validate(
+         //Validate request
+         $request->validate(
             [
-                'name' => 'required|unique:points,name',
+                'name' => 'required|unique:polygons,name',
                 'description' => 'required',
-                'geom_point' => 'required',
+                'geom_polygons' => 'required',
             ],
             [
                 'name.required' => 'Name is required',
                 'name.unique' => 'Name already exists',
                 'description.required' => 'Description is required',
-                'geom_point.required' => 'Geometry point is required',
+                'geom_polygons.required' => 'Geometry polygons is required',
             ]
             );
 
         $data = [
-            'geom' => $request ->geom_point,
+            'geom' => $request ->geom_polygons,
             'name' => $request ->name,
             'description' => $request ->description,
         ];
 
         // Create data
-       if (! $this->points->create($data)) {
-       return redirect()->route('map')->with('error', 'Point failed to add');
+       if (!$this->polygons->create($data)) {
+       return redirect()->route('map')->with('error', 'Polygons failed to add');
        }
 
         // Redirect to Map
-        return redirect()->route('map')->with('success', 'Point has been added');
+        return redirect()->route('map')->with('success', 'Polygons has been added');
     }
 
     /**
